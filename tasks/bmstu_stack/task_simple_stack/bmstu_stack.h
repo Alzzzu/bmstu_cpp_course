@@ -3,7 +3,7 @@
 #include <exception>
 #include <iostream>
 #include <utility>
-#include <new>
+
 namespace bmstu
 {
 template <typename T>
@@ -27,11 +27,11 @@ class stack
 	void emplace(Args&&... args)
 	{
 		if(empty()){
-			data_ = static_cast<T*>(operator new((sizeof(T))));
+			data_ = (T*)(operator new((sizeof(T))));
 			new(data_) T(std::forward<Args>(args)...);
 		}
 		else{
-			T* new_data = static_cast<T*>(operator new(sizeof(T)*(size_+1)));
+			T* new_data = (T*)(operator new(sizeof(T)*(size_+1)));
 			for (size_t i = 0; i<size_;i++){
 				new (new_data + i) T(std::move(data_[i]));
 				data_[i].~T();
