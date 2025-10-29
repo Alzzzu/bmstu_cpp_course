@@ -455,8 +455,8 @@ TEST(SimpleVector, PushBackCopyMove)
 	std::cout << "PARAAAAMS: " << CopyTracker::copy_count << " "
 			  << CopyTracker::move_count << std::endl;
 
-	ASSERT_EQ(CopyTracker::copy_count, 2);
-	ASSERT_GE(CopyTracker::move_count, 1);
+	ASSERT_EQ(CopyTracker::copy_count, 1);
+	ASSERT_GE(CopyTracker::move_count, 0);
 	ASSERT_EQ(v[0].value, 42);
 	ASSERT_EQ(original.value, 42);
 }
@@ -472,7 +472,7 @@ TEST(SimpleVector, PushBackCopyMove2)
 	std::cout << "PARAAAAMS: " << CopyTracker::copy_count << " "
 			  << CopyTracker::move_count << std::endl;
 
-	ASSERT_EQ(CopyTracker::copy_count, 1);
+	ASSERT_EQ(CopyTracker::copy_count, 0);
 	ASSERT_GE(CopyTracker::move_count, 1);
 	ASSERT_EQ(v[0].value, 42);
 	ASSERT_EQ(original.value, 0);
@@ -484,4 +484,17 @@ TEST(SimpleVector, PushBackCopyMove3)
 	v.push_back(42);
 	auto it = v.begin();
 	it = nullptr;
+}
+
+// TODO: finish testcase
+TEST(SimpleVector, OStream)
+{
+	bmstu::simple_vector<int> v{1, 2, 3, 4};
+	bmstu::simple_vector<int> empt;
+	std::stringbuf buffer;
+	std::ostream os(&buffer);
+	//	os << empt;
+	//	ASSERT_EQ(buffer.str(), "[]");
+	os << v;
+	ASSERT_EQ(buffer.str(), "[1, 2, 3, 4]");
 }

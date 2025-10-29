@@ -151,7 +151,7 @@ class simple_vector
 		capacity_ = init.size();
 		T* new_ptr = static_cast<T*>(operator new(sizeof(T) * (capacity_)));
 		data_ = array_ptr<T>(new_ptr);
-		int i = 0;
+		size_t i = 0;
 		for (T el : init)
 		{
 			new (&data_[i]) T(el);
@@ -164,7 +164,7 @@ class simple_vector
 		size_ = other.size_;
 		capacity_ = other.capacity_;
 		T* new_ptr = static_cast<T*>(operator new(sizeof(T) * (capacity_)));
-		for (int i = 0; i < size_; i++)
+		for (size_t i = 0; i < size_; i++)
 		{
 			new (&new_ptr[i]) T(other[i]);
 		}
@@ -179,7 +179,7 @@ class simple_vector
 		size_ = other.size_;
 		capacity_ = other.capacity_;
 		T* new_ptr = static_cast<T*>(operator new(sizeof(T) * (capacity_)));
-		for (int i = 0; i < size_; i++)
+		for (size_t i = 0; i < size_; i++)
 		{
 			new (&new_ptr[i]) T(other[i]);
 		}
@@ -199,12 +199,6 @@ class simple_vector
 		size_ = size;
 		capacity_ = size;
 		data_ = array_ptr<T>(size, value);
-		//	std::swap(data_, a);
-		//		data_.raw_ptr_ = static_cast<T*>(operator
-		// new(sizeof(T)*(capacity_))); 		for(int i =0; i< size; i++){
-		// new
-		//(&data_.raw_ptr_[i]) T(value);
-		//	}
 	}
 
 	iterator begin() noexcept { return iterator(data_.get()); }
@@ -230,10 +224,17 @@ class simple_vector
 		return data_.get()[index];
 	}
 
-	typename iterator::reference at(size_t index) { return data_.get()[index]; }
+	typename iterator::reference at(size_t index)
+	{
+		if (index >= size_)
+			throw std::out_of_range("Index out of range");
+		return data_.get()[index];
+	}
 
 	typename const_iterator::reference at(size_t index) const
 	{
+		if (index >= size_)
+			throw std::out_of_range("Index out of range");
 		return data_.get()[index];
 	}
 
@@ -248,7 +249,10 @@ class simple_vector
 		std::swap(this->data_, other.data_);
 	}
 
-	friend void swap(simple_vector& lhs, simple_vector& rhs) noexcept {}
+	friend void swap(simple_vector& lhs, simple_vector& rhs) noexcept
+	{
+		lhs.swap(rhs);
+	}
 
 	void reserve(size_t new_cap)
 	{
@@ -257,14 +261,12 @@ class simple_vector
 			capacity_ = new_cap;
 			T* new_data =
 				static_cast<T*>(operator new(sizeof(T) * (capacity_)));
-			for (int i = 0; i < size_; i++)
+			for (size_t i = 0; i < size_; i++)
 			{
-				new (&new_data[i]) T(data_[i]);
+				new (&new_data[i]) T(std::move(data_[i]));
 				data_[i].~T();
 			}
 			data_ = array_ptr<T>(new_data);
-			// operator delete (data_.raw_ptr_);
-			// std::swap(new_data, data_.raw_ptr_);
 		}
 	}
 
@@ -274,14 +276,14 @@ class simple_vector
 		{
 			capacity_ = new_size;
 			T* new_ptr = static_cast<T*>(operator new(sizeof(T) * (capacity_)));
-			for (int i = 0; i < size_; i++)
+			for (size_t i = 0; i < size_; i++)
 			{
 				new (&new_ptr[i]) T(std::move(data_[i]));
 				data_[i].~T();
 			}
 			data_ = array_ptr<T>(new_ptr);
 		}
-		for (int i = new_size; i < size_; i++)
+		for (size_t i = new_size; i < size_; i++)
 		{
 			data_[i].~T();
 			new (&data_[i]) T{};
@@ -292,68 +294,68 @@ class simple_vector
 
 	iterator insert(const_iterator where, T&& value)
 	{
-		int index = to_address(where) - data_.get();
+		size_t index = to_address(where) - data_.get();
 		if (size_ + 1 > capacity_)
 		{
 			capacity_ = capacity_ == 0 ? 1 : capacity_ * 2;
 			T* new_data = static_cast<T*>(operator new(sizeof(T) * capacity_));
-			for (int i = 0; i < index; i++)
+			for (size_t i = 0; i < index; i++)
 			{
 				new (&new_data[i]) T(std::move(data_[i]));
 				data_[i].~T();
 			}
 			new (&new_data[index]) T(std::move(value));
-			for (int i = index + 1; i <= size_; i++)
+			for (size_t i = index + 1; i <= size_; i++)
 			{
 				new (&new_data[i]) T(std::move(data_[i - 1]));
 				data_[i - 1].~T();
 			}
-			this->data_ = array_ptr<T>(new_data);
+			data_ = array_ptr<T>(new_data);
 			size_++;
 		}
 		else
 		{
-			for (int i = index + 1; i <= size_; i++)
+			for (size_t i = index + 1; i <= size_; i++)
 			{
 				new (&data_[i]) T(std::move(data_[i - 1]));
 				data_[i - 1].~T();
 			}
 			new (&data_[index]) T(std::move(value));
 		}
-		return where + 1;
+		return iterator(data_.get() + index);
 	}
 
 	iterator insert(const_iterator where, const T& value)
 	{
-		int index = to_address(where) - data_.raw_ptr_;
+		size_t index = to_address(where) - data_.get();
 		if (size_ + 1 > capacity_)
 		{
 			capacity_ = capacity_ == 0 ? 1 : capacity_ * 2;
 			T* new_data = static_cast<T*>(operator new(sizeof(T) * capacity_));
-			for (int i = 0; i < index; i++)
+			for (size_t i = 0; i < index; i++)
 			{
-				new (&new_data[i]) T(std::move(data_.raw_ptr_[i]));
-				data_.raw_ptr_[i].~T();
+				new (&new_data[i]) T(std::move(data_[i]));
+				data_[i].~T();
 			}
 			new (&new_data[index]) T(value);
-			for (int i = index + 1; i <= size_; i++)
+			for (size_t i = index + 1; i <= size_; i++)
 			{
-				new (&new_data[i]) T(std::move(data_.raw_ptr_[i - 1]));
-				data_.raw_ptr_[i - 1].~T();
+				new (&new_data[i]) T(std::move(data_[i - 1]));
+				data_[i - 1].~T();
 			}
-			std::swap(this->data_.raw_ptr_, new_data);
+			data_ = array_ptr<T>(new_data);
 			size_++;
 		}
 		else
 		{
-			for (int i = index + 1; i <= size_; i++)
+			for (size_t i = index + 1; i <= size_; i++)
 			{
-				new (&data_.raw_ptr_[i]) T(std::move(data_.raw_ptr_[i - 1]));
-				data_.raw_ptr_[i - 1].~T();
+				new (&data_[i]) T(std::move(data_[i - 1]));
+				data_[i - 1].~T();
 			}
-			new (&data_.raw_ptr_[index]) T(value);
+			new (&data_[index]) T(value);
 		}
-		return where + 1;
+		return iterator(data_.get() + index);
 	}
 
 	void push_back(T&& value)
@@ -363,21 +365,20 @@ class simple_vector
 			capacity_ = capacity_ == 0 ? 1 : capacity_ * 2;
 			T* new_data =
 				static_cast<T*>(operator new(sizeof(T) * (capacity_)));
-			for (int i = 0; i < size_; i++)
+			for (size_t i = 0; i < size_; i++)
 			{
 				new (&new_data[i]) T(std::move(data_[i]));
 				data_[i].~T();
 			}
-			new (&new_data[size_]) T(std::move(value));
 			data_ = array_ptr<T>(new_data);
 		}
-
+		new (&data_[size_]) T(std::move(value));
 		size_++;
 	}
 
 	void clear() noexcept
 	{
-		for (int i = 0; i < size_; i++)
+		for (size_t i = 0; i < size_; i++)
 		{
 			data_[i].~T();
 		}
@@ -388,18 +389,17 @@ class simple_vector
 	{
 		if (size_ + 1 > capacity_)
 		{
-			capacity_ *= 2;
 			capacity_ = capacity_ == 0 ? 1 : capacity_ * 2;
 			T* new_data =
 				static_cast<T*>(operator new(sizeof(T) * (capacity_)));
-			for (int i = 0; i < size_; i++)
+			for (size_t i = 0; i < size_; i++)
 			{
 				new (&new_data[i]) T(std::move(data_[i]));
 				data_[i].~T();
 			}
 			data_ = array_ptr<T>(new_data);
 		}
-		new (&data_[size_]) T(std::move(value));
+		new (&data_[size_]) T(value);
 		size_++;
 	}
 
@@ -419,7 +419,7 @@ class simple_vector
 	{
 		if (lhs.size_ != rhs.size_)
 			return false;
-		for (int i = 0; i < lhs.size_; i++)
+		for (size_t i = 0; i < lhs.size_; i++)
 		{
 			if (lhs[i] != rhs[i])
 				return false;
@@ -434,7 +434,7 @@ class simple_vector
 
 	friend auto operator<=>(const simple_vector& lhs, const simple_vector& rhs)
 	{
-		for (int i = 0; i < std::min(lhs.size_, rhs.size_); i++)
+		for (size_t i = 0; i < std::min(lhs.size_, rhs.size_); i++)
 		{
 			if (lhs.data_[i] != rhs.data_[i])
 			{
@@ -446,16 +446,24 @@ class simple_vector
 
 	friend std::ostream& operator<<(std::ostream& os, const simple_vector& vec)
 	{
+		os << "[";
+		for (size_t i = 0; i < vec.size_; i++)
+		{
+			os << vec[i];
+			if (i != vec.size_ - 1)
+				os << ", ";
+		}
+		os << "]";
 		return os;
 	}
 	iterator erase(iterator where)
 	{
-		int index = to_address(where) - data_.get();
+		size_t index = to_address(where) - data_.get();
 		data_[index].~T();
-		for (int i = index; i < size_ - 1; i++)
+		for (size_t i = index; i < size_ - 1; i++)
 		{
-			data_[i + 1].~T();
 			new (&data_[i]) T(std::move(data_[i + 1]));
+			data_[i + 1].~T();
 		}
 
 		size_--;
@@ -466,7 +474,14 @@ class simple_vector
 	static bool alphabet_compare(const simple_vector<T>& lhs,
 								 const simple_vector<T>& rhs)
 	{
-		return false;
+		for (size_t i = 0; i < std::min(lhs.size_, rhs.size_); i++)
+		{
+			if (lhs.data_[i] != rhs.data_[i])
+			{
+				return lhs.data_[i] < rhs.data_[i];
+			}
+		}
+		return lhs.size_ < rhs.size_;
 	}
 	array_ptr<T> data_;
 	size_t size_ = 0;

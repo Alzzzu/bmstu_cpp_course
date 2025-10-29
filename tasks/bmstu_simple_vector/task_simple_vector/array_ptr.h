@@ -55,8 +55,8 @@ class array_ptr
 	{
 		if (this != &other)
 		{
-			std::swap(raw_ptr_, other.raw_ptr_);
-			operator delete(other.raw_ptr_);
+			operator delete(raw_ptr_);
+			raw_ptr_ = other.raw_ptr_;
 			other.raw_ptr_ = nullptr;
 		}
 		return *this;
