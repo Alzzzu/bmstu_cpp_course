@@ -9,7 +9,7 @@ void my_fill(T* ptr, size_t size, const T& value = {})
 {
 	for (size_t i = 0; i < size; ++i)
 	{
-		ptr[i] = value;
+		new(&ptr[i]) T(value);
 	}
 }
 
@@ -29,12 +29,12 @@ class array_ptr
 {
    public:
 	array_ptr() = default;
-	explicit array_ptr(size_t size)
+	explicit array_ptr(size_t size, const T& value = T{})
 	{
 		if (size > 0)
 		{
-			raw_ptr_ = new T[size];
-			my_fill(raw_ptr_, size);
+			raw_ptr_ =  static_cast<T*>(operator new(sizeof(T)*(size)));
+			my_fill(raw_ptr_, size, value);
 		}
 		else
 		{
@@ -59,8 +59,8 @@ class array_ptr
 	{
 		if (this != &other)
 		{
-			delete[] raw_ptr_;
-			raw_ptr_ = other.raw_ptr_;
+			std::swap(raw_ptr_,other.raw_ptr_);
+			operator delete(other.raw_ptr_);
 			other.raw_ptr_ = nullptr;
 		}
 		return *this;
@@ -70,7 +70,7 @@ class array_ptr
 
 	explicit operator bool() const noexcept { return raw_ptr_ != nullptr; }
 
-	~array_ptr() { delete[] raw_ptr_; }
+	~array_ptr() { operator delete (raw_ptr_); }
 	void swap(array_ptr& other) noexcept { my_swap(raw_ptr_, other.raw_ptr_); }
 
 	const T& operator[](size_t index) const
@@ -87,7 +87,7 @@ class array_ptr
 		return tmp;
 	}
 
-   private:
+//   private:
 	T* raw_ptr_ = nullptr;
 };
 }  // namespace bmstu
