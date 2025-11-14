@@ -277,21 +277,21 @@ TEST(StackTest, OptimizationCheck)
 
 	s.emplace(1, 2, 3);
 	ASSERT_EQ(CountCopyMoveDefault::default_constructor_count, 2);
-	ASSERT_EQ(CountCopyMoveDefault::move_constructor_count, 2);
+	ASSERT_EQ(CountCopyMoveDefault::move_constructor_count, 2); // fixed : needs 2 gets 3
 	ASSERT_EQ(CountCopyMoveDefault::copy_constructor_count, 0);
 
 	CountCopyMoveDefault obj;
 	s.push(obj);
 	ASSERT_EQ(CountCopyMoveDefault::default_constructor_count, 3);
-	ASSERT_EQ(CountCopyMoveDefault::copy_constructor_count, 1);
-	ASSERT_EQ(CountCopyMoveDefault::move_constructor_count, 4);
+	ASSERT_EQ(CountCopyMoveDefault::copy_constructor_count, 1); // needs 1 gets 3
+	ASSERT_EQ(CountCopyMoveDefault::move_constructor_count, 4); // needs 4 gets 3
 
 	s.push(CountCopyMoveDefault());
 	ASSERT_EQ(CountCopyMoveDefault::default_constructor_count, 4);
-	ASSERT_EQ(CountCopyMoveDefault::move_constructor_count, 8);
+	ASSERT_EQ(CountCopyMoveDefault::move_constructor_count, 8); // needs 8 gets 7
 
 	ASSERT_EQ(s.size(), 4u);
-	ASSERT_EQ(CountCopyMoveDefault::assignment_copy_count, 0);
+	ASSERT_EQ(CountCopyMoveDefault::assignment_copy_count, 0); 
 	ASSERT_EQ(CountCopyMoveDefault::assignment_move_count, 0);
 }
 

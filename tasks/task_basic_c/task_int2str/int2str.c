@@ -12,11 +12,15 @@ int countDigits(int n) {
 
 char* int2str(int number)
 {
-	if(number == INT_MIN){
+	if (number == INT_MIN){
 		return "-2147483648";
 	}
+
+	if (number == 0){
+		return "0";
+	}
+
     int size = countDigits(number);
-	int counter = 10;
 	char digs[size + (number<0?1:0) + 1];
 
 	if(number<0&&number!=2147483648){
