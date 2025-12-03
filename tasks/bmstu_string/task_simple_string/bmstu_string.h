@@ -78,7 +78,7 @@ class basic_string
 
 	/// Деструктор
 	~basic_string() {
-		delete[] ptr_;
+		clean_();
 	}
 
 	/// Геттер на си-строку
@@ -156,12 +156,12 @@ class basic_string
 	}
 
 	basic_string& operator+=(const basic_string& other) { 
-		T* new_ptr_ = new T[size_+other.size_];
+		T* new_ptr_ = new T[size_+other.size_+1];
 		for(size_t i =0; i<size_;i++){
 			new_ptr_[i] = ptr_[i];
 		}
 		for(size_t j = 0; j<other.size_;j++){
-			new_ptr_[j] = other.ptr_[j];
+			new_ptr_[j+size_] = other.ptr_[j];
 		}
 		new_ptr_[size_+other.size_] ='\0';
 		size_ += other.size_;
@@ -203,7 +203,11 @@ class basic_string
 		return len; 
 	}
 
-	void clean_() {}
+	void clean_() {
+		delete[] ptr_;
+		ptr_ = nullptr;
+		size_=0;
+	}
 
 	T* ptr_ = nullptr;
 	size_t size_;
