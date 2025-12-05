@@ -46,6 +46,7 @@ class basic_string
 		for(size_t i =0; i<size_;i++){
 			ptr_[i] =*(il.begin()+i);
 		}
+		ptr_[size_] ='\0';
 
 	}
 
@@ -78,7 +79,7 @@ class basic_string
 
 	/// Деструктор
 	~basic_string() {
-		clean_();
+		delete[] ptr_;
 	}
 
 	/// Геттер на си-строку
@@ -87,7 +88,8 @@ class basic_string
 	size_t size() const { return size_; }
 
 	/// Оператор копирующего присваивания
-	basic_string& operator=(basic_string&& other) { 
+	basic_string& operator=(basic_string&& other) { 		
+		if(this==&other) return *this;
 		delete[] ptr_;
 		size_ = other.size_;
 		ptr_ = other.ptr_;
@@ -97,27 +99,28 @@ class basic_string
 	}
 
 	/// Оператор копирующего присваивания си строки
-	basic_string& operator=(const T* c_str) { 
+	basic_string& operator=(const T* c_str) {
+		delete[] ptr_;
 		size_ = strlen_(c_str);
 		T* new_ptr_ = new T[size_+1];
 		for(size_t i = 0;i<size_;i++){
 			new_ptr_[i] = c_str[i]; 
 		}
 		new_ptr_[size_] = '\0';
-		delete[] ptr_;
 		ptr_=new_ptr_;
 		return *this; 
 	}
 
 	/// Оператор копирующего присваивания
 	basic_string& operator=(const basic_string& other) { 
+		if(this==&other) return *this;
+		delete[] ptr_;
 		size_ = other.size_;
 		T* new_ptr_ = new T[size_+1];
 		for (size_t i =0; i<size_;i++){
 			new_ptr_[i] = other.ptr_[i];
 		}
 		new_ptr_[size_] = '\0';
-		delete[] ptr_;
 		ptr_ = new_ptr_;
 		return *this; 
 	}
@@ -146,12 +149,12 @@ class basic_string
 	template <typename S>
 	friend S& operator>>(S& is, basic_string& obj)
 	{
-	//	basic_string new_str();
+		obj.clean_();
+		obj.ptr_=new T[1]{'\0'};
 		T ch;
 		while(is.get(ch)){
 			obj+=ch;
 		}
-		
 		return is;
 	}
 
@@ -205,11 +208,11 @@ class basic_string
 
 	void clean_() {
 		delete[] ptr_;
-		ptr_ = nullptr;
+		ptr_ =nullptr;
 		size_=0;
 	}
 
-	T* ptr_ = nullptr;
+	T* ptr_ = new T[1]{'\0'};
 	size_t size_;
 };
 }  // namespace bmstu
