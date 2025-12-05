@@ -36,7 +36,12 @@ class simple_basic_string
 		{
 			ptr_[i] = *(il.begin() + i);
 		}
+<<<<<<< HEAD
 		ptr_[size_] = '\0';
+=======
+		ptr_[size_] ='\0';
+
+>>>>>>> b8e336b (non-optimized string 2.0)
 	}
 
 	/// Конструктор с параметром си-с
@@ -70,18 +75,30 @@ class simple_basic_string
 	}
 
 	/// Деструктор
+<<<<<<< HEAD
 	~simple_basic_string() { clean_(); }
+=======
+	~basic_string() {
+		delete[] ptr_;
+	}
+>>>>>>> b8e336b (non-optimized string 2.0)
 
 	/// Геттер на си-строку
 	const T* c_str() const { return ptr_; }
 
 	size_t size() const { return size_; }
 
+<<<<<<< HEAD
 	/// Оператор перемещающего присваивания
 	simple_basic_string& operator=(simple_basic_string&& other)
 	{
 		if (this == &other)
 			return *this;
+=======
+	/// Оператор копирующего присваивания
+	basic_string& operator=(basic_string&& other) { 		
+		if(this==&other) return *this;
+>>>>>>> b8e336b (non-optimized string 2.0)
 		delete[] ptr_;
 		size_ = other.size_;
 		ptr_ = other.ptr_;
@@ -91,6 +108,7 @@ class simple_basic_string
 	}
 
 	/// Оператор копирующего присваивания си строки
+<<<<<<< HEAD
 	simple_basic_string& operator=(const T* c_str)
 	{
 		delete[] ptr_;
@@ -109,6 +127,23 @@ class simple_basic_string
 	{
 		if (this == &other)
 			return *this;
+=======
+	basic_string& operator=(const T* c_str) {
+		delete[] ptr_;
+		size_ = strlen_(c_str);
+		T* new_ptr_ = new T[size_+1];
+		for(size_t i = 0;i<size_;i++){
+			new_ptr_[i] = c_str[i]; 
+		}
+		new_ptr_[size_] = '\0';
+		ptr_=new_ptr_;
+		return *this; 
+	}
+
+	/// Оператор копирующего присваивания
+	basic_string& operator=(const basic_string& other) { 
+		if(this==&other) return *this;
+>>>>>>> b8e336b (non-optimized string 2.0)
 		delete[] ptr_;
 		size_ = other.size_;
 		T* new_ptr_ = new T[size_ + 1];
@@ -116,6 +151,10 @@ class simple_basic_string
 		{
 			new_ptr_[i] = other.ptr_[i];
 		}
+<<<<<<< HEAD
+=======
+		new_ptr_[size_] = '\0';
+>>>>>>> b8e336b (non-optimized string 2.0)
 		ptr_ = new_ptr_;
 		return *this;
 	}
@@ -138,6 +177,11 @@ class simple_basic_string
 	template <typename S>
 	friend S& operator>>(S& is, simple_basic_string& obj)
 	{
+<<<<<<< HEAD
+=======
+		obj.clean_();
+		obj.ptr_=new T[1]{'\0'};
+>>>>>>> b8e336b (non-optimized string 2.0)
 		T ch;
 		while (is.get(ch))
 		{
@@ -205,8 +249,13 @@ class simple_basic_string
 	void clean_()
 	{
 		delete[] ptr_;
+<<<<<<< HEAD
 		ptr_ = nullptr;
 		size_ = 0;
+=======
+		ptr_ =nullptr;
+		size_=0;
+>>>>>>> b8e336b (non-optimized string 2.0)
 	}
 
 	T* ptr_ = new T[1]{'\0'};
