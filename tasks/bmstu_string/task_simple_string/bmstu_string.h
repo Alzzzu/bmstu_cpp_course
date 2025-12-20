@@ -89,6 +89,7 @@ class simple_basic_string
 	size_t size() const { return size_; }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	/// Оператор перемещающего присваивания
 	simple_basic_string& operator=(simple_basic_string&& other)
 	{
@@ -96,6 +97,9 @@ class simple_basic_string
 			return *this;
 =======
 	/// Оператор копирующего присваивания
+=======
+	/// Оператор перемещающего присваивания
+>>>>>>> be6576c (commit)
 	basic_string& operator=(basic_string&& other) { 		
 		if(this==&other) return *this;
 >>>>>>> b8e336b (non-optimized string 2.0)
