@@ -6,32 +6,19 @@
 namespace bmstu
 {
 template <typename T>
-class basic_string;
+class simple_basic_string;
 
-typedef basic_string<char> string;
-typedef basic_string<wchar_t> wstring;
-typedef basic_string<char16_t> u16string;
-typedef basic_string<char32_t> u32string;
-
-template <typename T>
-class basic_string;
-
-typedef basic_string<char> string;
-typedef basic_string<wchar_t> wstring;
-// typedef basic_string<char8_t> u8string;
-typedef basic_string<char16_t> u16string;
-typedef basic_string<char32_t> u32string;
+typedef simple_basic_string<char> string;
+typedef simple_basic_string<wchar_t> wstring;
+typedef simple_basic_string<char16_t> u16string;
+typedef simple_basic_string<char32_t> u32string;
 
 template <typename T>
-#ifdef _MSC_VER
-class basic_string
-#else
-class basic_string
-#endif
+class simple_basic_string
 {
    public:
 	/// Конструктор по умолчанию
-	basic_string() : ptr_(new T[1]{0}), size_(0) {}
+	simple_basic_string() : ptr_(new T[1]{0}), size_(0) {}
 
 	basic_string(size_t size) : ptr_(new T[size + 1]), size_(size) {
 		for (size_t i=0;i<size_;i++){
@@ -40,7 +27,7 @@ class basic_string
 		ptr_[size_] = '\0';
 	}
 
-	basic_string(std::initializer_list<T> il)
+	simple_basic_string(std::initializer_list<T> il)
 		: ptr_(new T[il.size() + 1]), size_(il.size())
 	{
 		for(size_t i =0; i<size_;i++){
@@ -125,8 +112,8 @@ class basic_string
 		return *this; 
 	}
 
-	friend basic_string<T> operator+(const basic_string<T>& left,
-									 const basic_string<T>& right)
+	friend simple_basic_string<T> operator+(const simple_basic_string<T>& left,
+											const simple_basic_string<T>& right)
 	{
 		basic_string new_string(left.size_+right.size_);
 		for(size_t l =0;l< left.size_;l++){
@@ -140,14 +127,14 @@ class basic_string
 	}
 
 	template <typename S>
-	friend S& operator<<(S& os, const basic_string& obj)
+	friend S& operator<<(S& os, const simple_basic_string& obj)
 	{
 		os<<obj.c_str();
 		return os;
 	}
 
 	template <typename S>
-	friend S& operator>>(S& is, basic_string& obj)
+	friend S& operator>>(S& is, simple_basic_string& obj)
 	{
 		obj.clean_();
 		obj.ptr_=new T[1]{'\0'};
