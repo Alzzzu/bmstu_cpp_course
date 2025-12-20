@@ -87,7 +87,7 @@ class basic_string
 
 	size_t size() const { return size_; }
 
-	/// Оператор копирующего присваивания
+	/// Оператор перемещающего присваивания
 	basic_string& operator=(basic_string&& other) { 		
 		if(this==&other) return *this;
 		delete[] ptr_;
