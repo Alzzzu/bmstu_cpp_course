@@ -308,13 +308,10 @@ class basic_string
 			for(size_t i=0;i<size();i++){
 				new_ptr[i] = get_ptr()[i];
 			}
-			//new_ptr[size()] = symbol;
-			//new_ptr[size()+1]='\0';
 			clean_();
 			data_.long_str.ptr = new_ptr;
 			new_ptr = nullptr;
 			data_.long_str.capacity = new_size+1;
-			//data_.long_str.size = new_size;
 			is_long_ = true;
 		}
 		
