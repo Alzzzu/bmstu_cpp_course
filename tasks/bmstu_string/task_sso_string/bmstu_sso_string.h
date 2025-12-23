@@ -270,7 +270,6 @@ class basic_string
 	template <typename S>
 	friend S& operator>>(S& is, basic_string& obj)
 	{
-		obj = basic_string();
 		T ch;
 		while(is.get(ch)){
 			obj+=ch;
@@ -302,29 +301,31 @@ class basic_string
 
 	basic_string& operator+=(T symbol) { 
 		
+		size_t new_size = size()+1;
+
 		if(size()+1>get_capacity()){		
-			T* new_ptr = new T[size()+2];	
+			T* new_ptr = new T[new_size+1];	
 			for(size_t i=0;i<size();i++){
 				new_ptr[i] = get_ptr()[i];
 			}
-			new_ptr[size()] =symbol;
-			new_ptr[size()+1]='\0';
+			//new_ptr[size()] = symbol;
+			//new_ptr[size()+1]='\0';
 			clean_();
 			data_.long_str.ptr = new_ptr;
-			data_.long_str.capacity = size()+2;
-			data_.long_str.size = size()+1;
+			new_ptr = nullptr;
+			data_.long_str.capacity = new_size+1;
+			//data_.long_str.size = new_size;
 			is_long_ = true;
-			return *this;
 		}
-
-		get_ptr()[size()]=symbol;
-		get_ptr()[size()+1]='\0';
+		
+		get_ptr()[new_size-1]=symbol;
+		get_ptr()[new_size]='\0';
 
 		if(is_long()){
-			data_.long_str.size = size()+1;
+			data_.long_str.size = new_size;
 		}
 		else{
-			data_.short_str.size = size()+1;
+			data_.short_str.size = new_size;
 		}
 		
 		return *this; 
