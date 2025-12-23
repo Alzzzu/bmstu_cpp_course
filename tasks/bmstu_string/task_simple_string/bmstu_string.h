@@ -20,7 +20,7 @@ class simple_basic_string
 	/// Конструктор по умолчанию
 	simple_basic_string() : ptr_(new T[1]{0}), size_(0) {}
 
-	basic_string(size_t size) : ptr_(new T[size + 1]), size_(size) {
+	simple_basic_string(size_t size) : ptr_(new T[size + 1]), size_(size) {
 		for (size_t i=0;i<size_;i++){
 			ptr_[i]  =' ';
 		}
@@ -34,39 +34,35 @@ class simple_basic_string
 			ptr_[i] =*(il.begin()+i);
 		}
 		ptr_[size_] ='\0';
-
 	}
 
 	/// Конструктор с параметром си-с
-	basic_string(const T* c_str) {
+	simple_basic_string(const T* c_str) {
 		size_ = strlen_(c_str);
 		ptr_ = new T[size_+1];
-		for(size_t i = 0;i<size_;i++){
+		for(size_t i = 0;i<=size_;i++){
 			ptr_[i] = c_str[i]; 
 		}
-		ptr_[size_] = '\0';
 	}
 
 	/// Конструктор копирования
-	basic_string(const basic_string& other) {
+	simple_basic_string(const simple_basic_string& other) {
 		size_ = other.size_;
 		ptr_ = new T[size_+1];
-		for (size_t i =0; i<size_;i++){
+		for (size_t i =0; i<=size_;i++){
 			ptr_[i] = other.ptr_[i];
 		}
-		ptr_[size_] = '\0';
 	}
 
 	/// Перемещающий конструктор
-	basic_string(basic_string&& dying) : size_(dying.size_), ptr_(dying.ptr_) {
-		dying.ptr_ =nullptr;
+	simple_basic_string(simple_basic_string&& dying) : size_(dying.size_), ptr_(dying.ptr_) {
+		dying.ptr_ = nullptr;
 		dying.size_ = 0;
-
 	}
 
 	/// Деструктор
-	~basic_string() {
-		delete[] ptr_;
+	~simple_basic_string() {
+		clean_();
 	}
 
 	/// Геттер на си-строку
@@ -75,7 +71,7 @@ class simple_basic_string
 	size_t size() const { return size_; }
 
 	/// Оператор перемещающего присваивания
-	basic_string& operator=(basic_string&& other) { 		
+	simple_basic_string& operator=(simple_basic_string&& other) { 		
 		if(this==&other) return *this;
 		delete[] ptr_;
 		size_ = other.size_;
@@ -86,28 +82,26 @@ class simple_basic_string
 	}
 
 	/// Оператор копирующего присваивания си строки
-	basic_string& operator=(const T* c_str) {
+	simple_basic_string& operator=(const T* c_str) {
 		delete[] ptr_;
 		size_ = strlen_(c_str);
 		T* new_ptr_ = new T[size_+1];
-		for(size_t i = 0;i<size_;i++){
+		for(size_t i = 0;i<= size_;i++){
 			new_ptr_[i] = c_str[i]; 
 		}
-		new_ptr_[size_] = '\0';
 		ptr_=new_ptr_;
 		return *this; 
 	}
 
 	/// Оператор копирующего присваивания
-	basic_string& operator=(const basic_string& other) { 
+	simple_basic_string& operator=(const simple_basic_string& other) { 
 		if(this==&other) return *this;
 		delete[] ptr_;
 		size_ = other.size_;
 		T* new_ptr_ = new T[size_+1];
-		for (size_t i =0; i<size_;i++){
+		for (size_t i =0; i<= size_;i++){
 			new_ptr_[i] = other.ptr_[i];
 		}
-		new_ptr_[size_] = '\0';
 		ptr_ = new_ptr_;
 		return *this; 
 	}
@@ -115,14 +109,13 @@ class simple_basic_string
 	friend simple_basic_string<T> operator+(const simple_basic_string<T>& left,
 											const simple_basic_string<T>& right)
 	{
-		basic_string new_string(left.size_+right.size_);
+		simple_basic_string new_string(left.size_+right.size_);
 		for(size_t l =0;l< left.size_;l++){
 			new_string.ptr_[l] = left.ptr_[l];
 		}
-		for(size_t r =0;r< right.size_;r++){
+		for(size_t r =0;r <= right.size_;r++){
 			new_string.ptr_[left.size_+r] = right.ptr_[r];
 		}
-		new_string.ptr_[new_string.size_] = '\0';
 		return new_string;
 	}
 
@@ -145,22 +138,21 @@ class simple_basic_string
 		return is;
 	}
 
-	basic_string& operator+=(const basic_string& other) { 
+	simple_basic_string& operator+=(const simple_basic_string& other) { 
 		T* new_ptr_ = new T[size_+other.size_+1];
 		for(size_t i =0; i<size_;i++){
 			new_ptr_[i] = ptr_[i];
 		}
-		for(size_t j = 0; j<other.size_;j++){
+		for(size_t j = 0; j<=other.size_;j++){
 			new_ptr_[j+size_] = other.ptr_[j];
 		}
-		new_ptr_[size_+other.size_] ='\0';
 		size_ += other.size_;
 		delete[] ptr_;
-		ptr_ =new_ptr_;
+		ptr_ = new_ptr_;
 		return *this; 
 	}
 
-	basic_string& operator+=(T symbol) { 
+	simple_basic_string& operator+=(T symbol) { 
 		T* new_ptr_ = new T[size_+2];
 		for(size_t i =0; i<size_;i++){
 			new_ptr_[i] = ptr_[i];

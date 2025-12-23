@@ -91,9 +91,7 @@ class basic_string
 			is_long_=false;
 			data_.short_str.size = size;
 		}
-
 		size_t i = 0;
-
 		for(T val: il){
 			get_ptr()[i] = val;
 			i++;
@@ -112,7 +110,7 @@ class basic_string
 			data_.long_str.ptr = new T[data_.long_str.capacity];
 		}
 		
-		else{
+		else {
 			is_long_=false;
 			data_.short_str.size = len;
 		}
@@ -129,13 +127,13 @@ class basic_string
 		
 		is_long_ = other.is_long();
 		if (is_long()){
-			data_.long_str.capacity = other.capacity();
-			data_.long_str.size = other.size();
+			data_.long_str.capacity = other.data_.long_str.capacity;
+			data_.long_str.size = other.data_.long_str.size;
 			data_.long_str.ptr = new T[data_.long_str.capacity];
 		}
 		
 		else{
-			data_.short_str.size = other.size();
+			data_.short_str.size = other.data_.short_str.size;
 		}
 		
 		for(size_t i = 0; i<=size(); i++){
@@ -145,7 +143,7 @@ class basic_string
 
 	basic_string(basic_string&& dying) noexcept {
 		
-		is_long_=dying.is_long();
+		is_long_= dying.is_long();
 
 		if (dying.is_long()){
 			data_.long_str.size = dying.data_.long_str.size;
@@ -180,11 +178,13 @@ class basic_string
 	size_t capacity() const { return get_capacity(); }
 
 	basic_string& operator=(basic_string&& other) noexcept { 
-	
+		
+		clean_();
+		
 		if (other.is_long()){
-			data_.long_str.size = other.size();
-			data_.long_str.capacity = other.capacity();
-			data_.long_str.ptr = other.get_ptr();	
+			data_.long_str.size = other.data_.long_str.size;
+			data_.long_str.capacity = other.data_.long_str.capacity;
+			data_.long_str.ptr = other.data_.long_str.ptr;	
 			other.data_.long_str.ptr = nullptr;
 			other.is_long_ = false;
 		}
@@ -203,10 +203,8 @@ class basic_string
 	}
 
 	basic_string& operator=(const T* c_str) { 
-		
-		if(is_long()){
-			clean_();	
-		}
+	
+		clean_();
 		
 		size_t len = strlen_(c_str);
 		
@@ -233,20 +231,18 @@ class basic_string
 
 	basic_string& operator=(const basic_string& other) { 
 		
-		if (is_long()){
-			clean_();
-		}
+		clean_();
 
 		is_long_ = other.is_long();
 		
 		if (is_long_){
-			data_.long_str.capacity = other.capacity();
-			data_.long_str.size = other.size();
+			data_.long_str.capacity = other.data_.long_str.capacity;
+			data_.long_str.size = other.data_.long_str.capacity;
 			data_.long_str.ptr = new T[data_.long_str.capacity];
 		}
 		
 		else {
-			data_.short_str.size = other.size();
+			data_.short_str.size = other.data_.short_str.size;
 		}
 
 		for (size_t i = 0; i<=size(); i++){
@@ -291,9 +287,7 @@ class basic_string
 			for(size_t i=0; i<size(); i++){
 				new_ptr[i] = get_ptr()[i];
 			}
-			if(is_long()){
-				clean_();
-			}
+			clean_();
 			data_.long_str.ptr = new_ptr;
 			data_.long_str.capacity = new_size+1;
 			data_.long_str.size = new_size;
@@ -315,9 +309,7 @@ class basic_string
 			}
 			new_ptr[size()] =symbol;
 			new_ptr[size()+1]='\0';
-			if(is_long()){
-				clean_();
-			}
+			clean_();
 			data_.long_str.ptr = new_ptr;
 			data_.long_str.capacity = size()+2;
 			data_.long_str.size = size()+1;
@@ -344,7 +336,7 @@ class basic_string
 	}
 
 	T& at(size_t index) {
-		if (index<0||index>=size()){
+		if (index>=size()){
 			throw std::out_of_range("Wrong index"); 
 		}
 		return get_ptr()[index];
@@ -365,8 +357,7 @@ class basic_string
 		if(is_long_){
 			delete[] data_.long_str.ptr;
 			data_.long_str.ptr = nullptr;
-		}
-
+		}		
 	}
 };
 }  // namespace bmstu
