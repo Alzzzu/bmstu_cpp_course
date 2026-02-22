@@ -4,6 +4,7 @@
 #include <sstream>
 #include "bmstu_string.h"
 
+
 TEST(StringTest, DefaultConstructor)
 {
 	bmstu::string str;

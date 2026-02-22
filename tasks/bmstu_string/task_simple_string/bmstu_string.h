@@ -109,13 +109,8 @@ class simple_basic_string
 	friend simple_basic_string<T> operator+(const simple_basic_string<T>& left,
 											const simple_basic_string<T>& right)
 	{
-		simple_basic_string new_string(left.size_+right.size_);
-		for(size_t l =0;l< left.size_;l++){
-			new_string.ptr_[l] = left.ptr_[l];
-		}
-		for(size_t r =0;r <= right.size_;r++){
-			new_string.ptr_[left.size_+r] = right.ptr_[r];
-		}
+		simple_basic_string new_string(left);
+		new_string+=right;
 		return new_string;
 	}
 
@@ -129,8 +124,6 @@ class simple_basic_string
 	template <typename S>
 	friend S& operator>>(S& is, simple_basic_string& obj)
 	{
-		obj.clean_();
-		obj.ptr_=new T[1]{'\0'};
 		T ch;
 		while(is.get(ch)){
 			obj+=ch;
