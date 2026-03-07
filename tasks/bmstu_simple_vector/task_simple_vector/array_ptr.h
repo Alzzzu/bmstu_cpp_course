@@ -42,8 +42,15 @@ class array_ptr
 		}
 	}
 	explicit array_ptr(T* raw_ptr) : raw_ptr_(raw_ptr) {}
-	array_ptr(const array_ptr& other) = delete;
-	array_ptr& operator=(const array_ptr& other) = delete;
+	
+	array_ptr(const array_ptr& other){
+
+	}
+
+	array_ptr& operator=(const array_ptr& other){
+		
+	}
+	
 	array_ptr(array_ptr&& other) noexcept : raw_ptr_(other.raw_ptr_)
 	{
 		other.raw_ptr_ = nullptr;

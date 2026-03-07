@@ -20,11 +20,13 @@ class simple_vector
 
 		iterator() = default;
 
-		iterator(const iterator& other) = default;
+		iterator(const iterator& other) : ptr_(other.ptr_){}
 
 		iterator(std::nullptr_t) noexcept : ptr_(nullptr) {}
 
-		iterator(iterator&& other) noexcept : ptr_(nullptr) {}
+		iterator(iterator&& other) noexcept : ptr_(other.ptr_) {
+			other.ptr_ = nullptr;
+		}
 
 		explicit iterator(pointer ptr) : ptr_(ptr) {}
 
@@ -37,29 +39,50 @@ class simple_vector
 			return it.ptr_;
 		}
 
-		iterator& operator=(const iterator& other) = default;
+		iterator& operator=(const iterator& other){
+			ptr_ = other.ptr_;
+			return *this; 
+		};
 
-		iterator& operator=(iterator&& other) noexcept { return *this; }
+		iterator& operator=(iterator&& other) noexcept { 
+			ptr_ = other.ptr_;
+			other.ptr_ = nullptr;
+			return *this; 
+		}
 
 #pragma region Operators
-		iterator& operator++() { return *this; }
+		iterator& operator++() { 
+			ptr_++;
+			return *this; 
+		}
 
-		iterator& operator--() { return *this; }
+		iterator& operator--() { 
+			ptr_--;
+			return *this; 
+		}
 
-		iterator operator++(int) { return *this; }
+		iterator operator++(int) { 
+			iterator temp = iterator(ptr_);
+			ptr_++;
+			return temp; 
+		}
 
-		iterator operator--(int) { return *this; }
+		iterator operator--(int) { 
+			iterator temp = iterator(ptr_);
+			ptr_--;
+			return temp; 
+		}
 
 		explicit operator bool() const { return ptr_ != nullptr; }
 
 		friend bool operator==(const iterator& lhs, const iterator& rhs)
 		{
-			return "false";
+			return lhs.ptr_==rhs.ptr_;
 		}
 
 		friend bool operator==(const iterator& lhs, std::nullptr_t)
 		{
-			return "false";
+			return lhs.ptr_ == nullptr;
 		}
 
 		iterator& operator=(std::nullptr_t) noexcept
@@ -70,38 +93,40 @@ class simple_vector
 
 		friend bool operator==(std::nullptr_t, const iterator& rhs)
 		{
-			return true;
+			return rhs.ptr_ == nullptr;
 		}
 
 		friend bool operator!=(const iterator& lhs, const iterator& rhs)
 		{
-			return true;
+			return lhs.ptr_ !=rhs.ptr_;
 		}
 
 		iterator operator+(const difference_type& n) const noexcept
 		{
-			return nullptr;
+			return iterator(ptr_+n);
 		}
 
 		iterator operator+=(const difference_type& n) noexcept
 		{
-			return nullptr;
+			ptr_+= n;
+			return *this;
 		}
 
 		iterator operator-(const difference_type& n) const noexcept
-		{
-			return nullptr;
+		{		
+			return iterator(ptr_-n);
 		}
 
 		iterator operator-=(const difference_type& n) noexcept
 		{
-			return nullptr;
+			ptr_-=n;
+			return *this;
 		}
 
 		friend difference_type operator-(const iterator& end,
 										 const iterator& begin) noexcept
 		{
-			return 0;
+			return end.ptr_ - begin.ptr_;
 		}
 
 #pragma endregion
@@ -121,11 +146,13 @@ class simple_vector
 
 	simple_vector& operator=(const simple_vector& other) { return *this; }
 
-	simple_vector(size_t size, const T& value = T{}) {}
+	simple_vector(size_t size, const T& value = T{}) {
+		data_.raw_ptr_ = operator new(sizeof(T)*size);
+	}
 
-	iterator begin() noexcept { return nullptr; }
+	iterator begin() noexcept { return iterator(data_.get()); }
 
-	iterator end() noexcept { return nullptr; }
+	iterator end() noexcept { return iterator(data_.get()+size_); }
 
 	using const_iterator = iterator;
 
@@ -150,9 +177,9 @@ class simple_vector
 		return data_.get()[1];
 	}
 
-	size_t size() const noexcept { return 1; }
+	size_t size() const noexcept { return size_; }
 
-	size_t capacity() const noexcept { return 100500; }
+	size_t capacity() const noexcept { return capacity_; }
 
 	void swap(simple_vector& other) noexcept {}
 
@@ -172,7 +199,7 @@ class simple_vector
 
 	void push_back(const T& value) {}
 
-	bool empty() const noexcept { return false; }
+	bool empty() const noexcept { return size_==0; }
 
 	void pop_back() { return; }
 

@@ -308,7 +308,7 @@ class basic_string
 			delete[] data_.long_str.ptr;
 			data_.long_str.ptr = nullptr;
 			data_.long_str.size = 0;
-			data_.long_str.capacity = 0; // is it neccessary???
+			data_.long_str.capacity = 0;
 		}
 		else{
 			data_.short_str.buffer[0]='\0';
