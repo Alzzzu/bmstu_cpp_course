@@ -3,7 +3,6 @@
 #include <sstream>
 #include "bmstu_sso_string.h"
 
-
 TEST(SSOStringTest, FromWCStr)
 {
 	bmstu::wstring str(L"test");
@@ -16,8 +15,6 @@ TEST(SSOStringTest, DefaultConstructor)
 	ASSERT_STREQ(str.c_str(), "");
 	ASSERT_EQ(str.size(), 0);
 }
-
-
 
 TEST(SSOStringTest, DefaultConstructorW)
 {
@@ -75,9 +72,8 @@ TEST(SSOStringTest, FromCStr)
 	ASSERT_EQ(str.size(), 4);
 }
 
-
-
-TEST(SSOStringTest, FromWCStrSymbol){
+TEST(SSOStringTest, FromWCStrSymbol)
+{
 	bmstu::wstring str(L"test");
 	ASSERT_STREQ(str.c_str(), L"test");
 	wchar_t c = L't';
@@ -105,7 +101,6 @@ TEST(SSOStringTest, USymbols)
 	ASSERT_STREQ(str.c_str(), "おはよう");
 	ASSERT_EQ(str.size() + 1, sizeof("おはよう"));
 }
-
 
 TEST(SSOStringTest, Empty)
 {
@@ -381,12 +376,23 @@ TEST(SSOStringTest, SSOCapacity)
 	ASSERT_GE(long_str.capacity(), long_str.size());
 }
 
-TEST (SSOStringTest, SSODestruction)
+TEST(SSOStringTest, SSODestruction)
 {
 	bmstu::string long_str("This is a very long string");
 	long_str.~basic_string();
 	ASSERT_TRUE(long_str.data() == nullptr);
 }
+
+TEST(SSOStringTest, SSODumbTest)
+{
+	bmstu::wstring long_str(L"1234");
+	ASSERT_FALSE(long_str.is_long());
+	std::cout << "CAPACITY: " << long_str.SSO_CAPACITY << std::endl;
+	bmstu::wstring long_str1(L"123456");
+
+	ASSERT_TRUE(long_str1.is_long());
+}
+
 /*
 int main(){
 	bmstu::string str;

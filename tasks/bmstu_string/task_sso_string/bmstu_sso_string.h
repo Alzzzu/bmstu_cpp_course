@@ -17,7 +17,8 @@ using u32string = basic_string<char32_t>;
 template <typename T>
 class basic_string
 {
-   private:
+	// private:
+   public:
 	static constexpr size_t SSO_CAPACITY =
 		(sizeof(T*) + sizeof(size_t) + sizeof(size_t)) / sizeof(T) - 1;
 
@@ -43,8 +44,6 @@ class basic_string
 	Data data_;
 	bool is_long_;
 
-	bool is_long() const { return is_long_; }
-
 	T* get_ptr()
 	{
 		return is_long_ ? data_.long_str.ptr : data_.short_str.buffer;
@@ -66,6 +65,7 @@ class basic_string
 	}
 
    public:
+	bool is_long() const { return is_long_; }
 	basic_string()
 	{
 		is_long_ = false;
@@ -277,7 +277,7 @@ class basic_string
 			}
 			clean_();
 			std::swap(data_.long_str.ptr, new_ptr);
-			data_.long_str.capacity = new_size + 1;
+			data_.long_str.capacity *= 2;
 			data_.long_str.size = new_size;
 			is_long_ = true;
 		}
@@ -302,7 +302,7 @@ class basic_string
 			}
 			clean_();
 			std::swap(data_.long_str.ptr, new_ptr);
-			data_.long_str.capacity = new_size + 1;
+			data_.long_str.capacity *= 2;
 			is_long_ = true;
 		}
 

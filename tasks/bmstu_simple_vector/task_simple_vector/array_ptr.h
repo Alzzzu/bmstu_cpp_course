@@ -9,7 +9,7 @@ void my_fill(T* ptr, size_t size, const T& value = {})
 {
 	for (size_t i = 0; i < size; ++i)
 	{
-		new(&ptr[i]) T(value);
+		new (&ptr[i]) T(value);
 	}
 }
 
@@ -33,7 +33,7 @@ class array_ptr
 	{
 		if (size > 0)
 		{
-			raw_ptr_ =  static_cast<T*>(operator new(sizeof(T)*(size)));
+			raw_ptr_ = static_cast<T*>(operator new(sizeof(T) * (size)));
 			my_fill(raw_ptr_, size, value);
 		}
 		else
@@ -42,15 +42,11 @@ class array_ptr
 		}
 	}
 	explicit array_ptr(T* raw_ptr) : raw_ptr_(raw_ptr) {}
-	
-	array_ptr(const array_ptr& other){
 
-	}
+	array_ptr(const array_ptr& other) = delete;
 
-	array_ptr& operator=(const array_ptr& other){
-		
-	}
-	
+	array_ptr& operator=(const array_ptr& other) = delete;
+
 	array_ptr(array_ptr&& other) noexcept : raw_ptr_(other.raw_ptr_)
 	{
 		other.raw_ptr_ = nullptr;
@@ -59,7 +55,7 @@ class array_ptr
 	{
 		if (this != &other)
 		{
-			std::swap(raw_ptr_,other.raw_ptr_);
+			std::swap(raw_ptr_, other.raw_ptr_);
 			operator delete(other.raw_ptr_);
 			other.raw_ptr_ = nullptr;
 		}
@@ -70,7 +66,7 @@ class array_ptr
 
 	explicit operator bool() const noexcept { return raw_ptr_ != nullptr; }
 
-	~array_ptr() { operator delete (raw_ptr_); }
+	~array_ptr() { operator delete(raw_ptr_); }
 	void swap(array_ptr& other) noexcept { my_swap(raw_ptr_, other.raw_ptr_); }
 
 	const T& operator[](size_t index) const
@@ -87,7 +83,7 @@ class array_ptr
 		return tmp;
 	}
 
-//   private:
+   private:
 	T* raw_ptr_ = nullptr;
 };
 }  // namespace bmstu

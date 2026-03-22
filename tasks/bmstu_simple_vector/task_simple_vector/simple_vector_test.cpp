@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <numeric>
 #include <sstream>
-/*
+
 TEST(SimpleVector, DefaultConstructor)
 {
 	bmstu::simple_vector<int> v;
@@ -74,7 +74,7 @@ TEST(SimpleVector, Resize)
 		v[2] = 17;
 		v.resize(7);
 		ASSERT_EQ(v.size(), 7);
-		std::cout<<"capacity: "<<v.capacity()<<std::endl;
+		std::cout << "capacity: " << v.capacity() << std::endl;
 		ASSERT_TRUE(v.capacity() >= v.size());
 		ASSERT_EQ(v[2], 17);
 		ASSERT_EQ(v[3], 0);
@@ -305,7 +305,7 @@ TEST(SimpleVector, Erase)
 
 	{
 		bmstu::simple_vector<int> v{1, 2, 3, 4, 5};
-		v.erase(v.end()-1);
+		v.erase(v.end() - 1);
 		ASSERT_EQ(v, (bmstu::simple_vector<int>{1, 2, 3, 4}));
 	}
 }
@@ -393,7 +393,6 @@ TEST(SimpleVector, test_new_push)
 	ASSERT_EQ(v.size(), 2);
 	ASSERT_EQ(v.capacity(), 2);
 }
-*/
 class CopyTracker
 {
    public:
@@ -443,7 +442,7 @@ class CopyTracker
 
 int CopyTracker::copy_count = 0;
 int CopyTracker::move_count = 0;
-/*
+
 TEST(SimpleVector, PushBackCopyMove)
 {
 	CopyTracker::reset();
@@ -453,14 +452,15 @@ TEST(SimpleVector, PushBackCopyMove)
 
 	v.push_back(original);
 
-	std::cout<<"PARAAAAMS: "<<CopyTracker::copy_count<<" "<<CopyTracker::move_count<<std::endl;
+	std::cout << "PARAAAAMS: " << CopyTracker::copy_count << " "
+			  << CopyTracker::move_count << std::endl;
 
 	ASSERT_EQ(CopyTracker::copy_count, 2);
 	ASSERT_GE(CopyTracker::move_count, 1);
 	ASSERT_EQ(v[0].value, 42);
 	ASSERT_EQ(original.value, 42);
 }
-*/
+
 TEST(SimpleVector, PushBackCopyMove2)
 {
 	CopyTracker::reset();
@@ -469,7 +469,8 @@ TEST(SimpleVector, PushBackCopyMove2)
 	CopyTracker original(42);
 
 	v.push_back(std::move(original));
-	std::cout<<"PARAAAAMS: "<<CopyTracker::copy_count<<" "<<CopyTracker::move_count<<std::endl;
+	std::cout << "PARAAAAMS: " << CopyTracker::copy_count << " "
+			  << CopyTracker::move_count << std::endl;
 
 	ASSERT_EQ(CopyTracker::copy_count, 1);
 	ASSERT_GE(CopyTracker::move_count, 1);
