@@ -117,7 +117,27 @@ class avl_balanced_tree
 		// ключа
 		// 3. Обновить значение, если ключ уже существует
 		// 4. Вызвать balance(node) для балансировки
-		return nullptr;
+		if (node == nullptr)
+		{
+			node = new tree_node<K, V>(key, value);
+			size_++;
+			return node;
+		}
+		if (key > node->key)
+		{
+			node->right = insert(key, value, node->right);
+		}
+		else if (key < node->key)
+		{
+			node->left = insert(key, value, node->left);
+		}
+		else
+		{
+			node->value = value;
+			return node;
+		}
+
+		return node;
 	}
 
 	void remove(const K& key, tree_node<K, V>*& node)
@@ -131,12 +151,79 @@ class avl_balanced_tree
 		//    поддерева)
 		// 3. Декрементировать size_
 		// 4. Вызвать balance(node) для балансировки
+		if (node == nullptr)
+		{
+			return;
+		}
+		if (key > node->key)
+		{
+			remove(key, node->right);
+			balance(node);
+		}
+		else if (key < node->key)
+		{
+			remove(key, node->right);
+			balance(node);
+		}
+		else
+		{
+			if (!node->left && !node->right)
+			{
+				delete node;
+				node = nullptr;
+				size_--;
+				return;
+			}
+			else
+			{
+				if (node->left && node->right)
+				{
+					tree_node<K, V>* min = findMinPtr(node);
+
+					node->key = min->key;
+					node->value = min->value;
+
+					remove(min->key, node->left);
+					return;
+				}
+				else
+				{
+					tree_node<K, V>* tmp =
+						node->left ? node->left : node->right;
+					delete node;
+					node = tmp;
+					size_--;
+					return;
+				}
+			}
+		}
 	}
 
 	tree_node<K, V>* find(const K& key, tree_node<K, V>* node) const
 	{
+		if (node == nullptr)
+		{
+			return nullptr;
+		}
+
+		if (key < node->key)
+		{
+			return find(key, node->left);
+		}
+
+		else if (key > node->key)
+		{
+			return find(key, node->right);
+		}
+
+		else
+		{
+			return node;
+		}
+
 		// TODO: Реализовать поиск узла по ключу
 		// Рекурсивно искать в левом или правом поддереве
+
 		return nullptr;
 	}
 
@@ -144,7 +231,11 @@ class avl_balanced_tree
 	{
 		// TODO: Найти узел с минимальным ключом в поддереве
 		// Подсказка: идти влево, пока возможно
-		return nullptr;
+		if (node == nullptr || node->left == nullptr)
+		{
+			return node;
+		}
+		return findMinPtr(node->left);
 	}
 
 	uint8_t heightOfTree(tree_node<K, V>* t)
@@ -152,31 +243,57 @@ class avl_balanced_tree
 		// TODO: Вычислить высоту дерева
 		// Высота пустого дерева = 0
 		// Высота дерева = 1 + max(высота левого, высота правого)
-		return 0;
+
+		return t == nullptr ? 0 : t->height;
+	}
+	void update_height(tree_node<K, V>* t)
+	{
+		if (t != nullptr)
+		{
+			uint8_t l_h = t->left != nullptr ? t->left->height : 0;
+			uint8_t r_h = t->right != nullptr ? t->right->height : 0;
+			t->height = 1 + std::max(l_h, r_h);
+		}
 	}
 
 	void rotateWithLeftChild(tree_node<K, V>*& k2)
 	{
 		// TODO: Реализовать правый поворот (rotation with left child)
 		// Используется для балансировки Left-Left случая
+		tree_node<K, V>* new_root = k2->left;
+		k2->left = new_root->right;
+		new_root->right = k2;
+		update_height(k2);
+		update_height(new_root);
+		k2 = new_root;
 	}
 
 	void rotateWithRightChild(tree_node<K, V>*& k1)
 	{
 		// TODO: Реализовать левый поворот (rotation with right child)
 		// Используется для балансировки Right-Right случая
+		tree_node<K, V>* new_root = k1->right;
+		k1->right = new_root->left;
+		new_root->left = k1;
+		update_height(k1);
+		update_height(new_root);
+		k1 = new_root;
 	}
 
 	void doubleWithLeftChild(tree_node<K, V>*& k3)
 	{
 		// TODO: Реализовать двойной поворот Left-Right
 		// Сначала левый поворот на левом ребенке, затем правый поворот на узле
+		rotateWithRightChild(k3->left);
+		rotateWithLeftChild(k3);
 	}
 
 	void doubleWithRightChild(tree_node<K, V>*& k1)
 	{
 		// TODO: Реализовать двойной поворот Right-Left
 		// Сначала правый поворот на правом ребенке, затем левый поворот на узле
+		rotateWithLeftChild(k1->right);
+		rotateWithRightChild(k1);
 	}
 
 	void balance(tree_node<K, V>*& t)
@@ -188,6 +305,31 @@ class avl_balanced_tree
 		//    - Left-Right: doubleWithLeftChild
 		//    - Right-Right: rotateWithRightChild
 		//    - Right-Left: doubleWithRightChild
+		if (t == nullptr)
+			return;
+		if (heightOfTree(t->left) - heightOfTree(t->right) > 1)
+		{
+			if (heightOfTree(t->left->left) >= heightOfTree(t->left->right))
+			{
+				rotateWithLeftChild(t);
+			}
+			else
+			{
+				doubleWithLeftChild(t);
+			}
+		}
+		else if (heightOfTree(t->left) - heightOfTree(t->right) < -1)
+		{
+			if (heightOfTree(t->right->left) <= heightOfTree(t->right->right))
+			{
+				rotateWithRightChild(t);
+			}
+			else
+			{
+				doubleWithRightChild(t);
+			}
+		}
+		update_height(t);
 	}
 
 	void inorder_print(tree_node<K, V>* node)
@@ -265,18 +407,41 @@ class map
 			// TODO: Реализовать инициализацию итератора
 			// Для begin(): нужно найти самый левый узел
 			// Для end(): current_ должен остаться nullptr
+			//
+
+			if (is_end)
+			{
+				return;
+			}
+			tree_node<K, V>* node = root;
+			while (node != nullptr)
+			{
+				stack_.push(node);
+				node = node->left;
+			}
+			if (!stack_.empty())
+			{
+				current_ = stack_.top();
+				stack_.pop();
+				pair_cache_.~pair();
+				new (&pair_cache_)
+					std::pair<const K, V>(current_->key, current_->value);
+			}
+			
 		}
 
 		typename iterator::reference operator*() const override
 		{
 			// TODO: Реализовать разыменование
 			// Нужно вернуть std::pair<const K, V> с текущим ключом и значением
+
 			return pair_cache_;
 		}
 
 		typename iterator::pointer operator->() const override
 		{
 			// TODO: Реализовать оператор стрелки
+
 			return &pair_cache_;
 		}
 
@@ -284,6 +449,31 @@ class map
 		{
 			// TODO: Реализовать переход к следующему элементу (in-order)
 			// Подсказка: используйте стек для обхода дерева
+			if (current_ == nullptr)
+			{
+				return *this;
+			}
+			if (current_->right != nullptr)
+			{
+				tree_node<K, V>* node = current_->right;
+				while (node != nullptr)
+				{
+					stack_.push(node);
+					node = node->left;
+				}
+			}
+			if (!stack_.empty())
+			{
+				current_ = stack_.top();
+				stack_.pop();
+				pair_cache_.~pair();
+				new (&pair_cache_)
+					std::pair<const K, V>(current_->key, current_->value);
+			}
+			else{
+				current_=nullptr;
+			}
+
 			return *this;
 		}
 
